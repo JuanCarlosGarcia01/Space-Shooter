@@ -5,8 +5,8 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     public float speed;
-    private Rigidbody rig;
-
+    public GameObject bullet;
+    public Rigidbody rig;
 
     private void Awake()
     {

@@ -12,10 +12,12 @@ public class Boundary
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement")]
-    public float speed;
-    public Boundary boundary;
-    public float tilt;
-    private Rigidbody rig;
+    [Header("Movimiento Jugador")]
+    [Range(5, 13)] public float value;
+    public Rigidbody rigid;
+    public float Jumpv = 15f;
+    public float thrust = 30;
+    bool m_isGrounded;
 
 
     [Header("Shooting")]
@@ -25,9 +27,10 @@ public class PlayerController : MonoBehaviour
     private float nextFire;
 
 
-    void Awake()
+    void Start()
     {
-        rig = GetComponent<Rigidbody>();
+        rigid = GetComponent<Rigidbody>();
+        m_isGrounded = true;
     }
 
     private void Update()
@@ -37,17 +40,46 @@ public class PlayerController : MonoBehaviour
             nextFire = Time.time + fireRate;    
             Instantiate(shot, shotSpawn.position, Quaternion.identity);
         }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Jump();
+        }
     }
 
 
     void FixedUpdate()
     {
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
+        transform.position = new Vector3(value, transform.position.y, transform.position.z);
+    }
 
-        Vector3 movement = new Vector3(moveHorizontal, 0, moveVertical);
-        rig.velocity = movement * speed;
-        rig.position = new Vector3(Mathf.Clamp(rig.position.x, boundary.xMin, boundary.xMax), 0, Mathf.Clamp(rig.position.z, boundary.zMin, boundary.zMax));
-        rig.rotation = Quaternion.Euler(0, 0, rig.velocity.x * -tilt);
+    void LateUpdate()
+    {
+        if (Input.GetButtonDown("Right") && m_isGrounded == true)
+        {
+            if (value == 20
+                )
+                return;
+            value += 20;
+        }
+        if (Input.GetButtonDown("Left") && m_isGrounded == true)
+        {
+            if (value == -20)
+                return;
+            value -= 20;
+        }
+    }
+
+    public void Jump()
+    {
+        rigid.AddForce(0, thrust, 0, ForceMode.Impulse);
+    }
+
+    void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.CompareTag("Grounded"))
+        {
+            m_isGrounded = true;
+        }
     }
 }
